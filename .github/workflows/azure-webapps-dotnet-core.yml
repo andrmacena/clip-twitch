@@ -83,7 +83,7 @@ jobs:
           commit-message: update authors
           title: Update AUTHORS
           body: Credit new contributors by updating AUTHORS
-          branch: ${{ github.head_ref }}
+          branch: master
 
 # This workflow will build and push a .NET Core app to an Azure Web App when a commit is pushed to your default branch.
 #
