@@ -8,11 +8,11 @@ env:
 
 on:
   push:
-    branches: [ "feature**" ]
-  workflow_dispatch:
+    branches: ["feature**"]
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   build:
@@ -76,7 +76,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Create Pull Request
         run: |
