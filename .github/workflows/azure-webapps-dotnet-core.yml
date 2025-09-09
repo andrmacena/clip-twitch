@@ -76,14 +76,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up GitHub CLI
-        uses: actions/setup-gh@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Create Pull Request
-        run: |
-          gh pr create --title "Automated Pull Request" --body "This pull request was created by a GitHub Actions workflow." --base main --head ${GITHUB_REF##*/}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: pullRequest } = await github.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: "Automated Pull Request",
+              head: "${GITHUB_REF##*/}", # Replace with your branch name
+              base: "master", # Target branch
+              body: "Description of the pull request"
+            });
+            console.log(`Pull request created: ${pullRequest.html_url}`);
 
 # This workflow will build and push a .NET Core app to an Azure Web App when a commit is pushed to your default branch.
 #
