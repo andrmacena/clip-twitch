@@ -74,17 +74,13 @@ jobs:
     needs: deploy
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v3
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: update authors
-          title: Update AUTHORS
-          body: Credit new contributors by updating AUTHORS
-          branch: auto-pr-branch
-          base: master
+        run: |
+          gh pr create --title "Automated Pull Request" --body "This pull request was created by a GitHub Actions workflow." --base main --head ${GITHUB_REF##*/}
+        env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 # This workflow will build and push a .NET Core app to an Azure Web App when a commit is pushed to your default branch.
 #
