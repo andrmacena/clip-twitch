@@ -1,10 +1,6 @@
-using ClipTwitch.Service;
 using ClipTwitch.Service.Interfaces;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Primitives;
-using System.Configuration;
 
 namespace ClipTwitch.Controllers
 {
@@ -54,6 +50,15 @@ namespace ClipTwitch.Controllers
         public async Task<IActionResult> GetStreamers([FromRoute] string nickname)
         {
             var resultado = await _twitchFunctions.GetStreamers(nickname);
+
+            return Ok(resultado);
+        }
+
+        [HttpGet]
+        [Route("games")]
+        public async Task<IActionResult> GetGames([FromQuery] string name)
+        {
+            var resultado = await _twitchFunctions.GetGames(name);
 
             return Ok(resultado);
         }

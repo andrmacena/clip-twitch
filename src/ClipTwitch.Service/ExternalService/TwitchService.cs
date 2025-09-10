@@ -1,14 +1,7 @@
 ﻿using ClipTwitch.Data.Models;
 using ClipTwitch.Service.Interfaces;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
-using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ClipTwitch.Service.ExternalService
 {
@@ -19,13 +12,13 @@ namespace ClipTwitch.Service.ExternalService
         private string AuthenticationUrl { get; set; }
         private string AuthorizationUrl { get; set; }
 
-        private IConfiguration _configuration;
-        public TwitchService(IConfiguration configuration)
+        private readonly AppSettings _configuration;
+        public TwitchService(IOptions<AppSettings> configuration)
         {
-            _configuration = configuration;
-            ClientId = _configuration["Credentials:ClientId"];
-            ClientSecret = _configuration["Credentials:ClientSecret"];
-            AuthenticationUrl = _configuration["TwitchRoutes:AuthorizeScopes"];
+            _configuration = configuration.Value;
+            ClientId = _configuration.credentials.ClientId;
+            ClientSecret = _configuration.credentials.ClientSecret;
+            AuthenticationUrl = _configuration.twitchRoutes.AuthorizeScopes;
         }
 
         public async Task<string> GetAccessToken()
@@ -95,6 +88,34 @@ namespace ClipTwitch.Service.ExternalService
                 throw;
             }
 
+        }
+
+        public async Task<BaseListItems<Game>> GetGames(string name)
+        {
+            try
+            {
+
+                var request = new HttpClient();
+
+                request.DefaultRequestHeaders.Add("Client-ID", ClientId);
+                request.DefaultRequestHeaders.Add("Authorization", "Bearer " + await GetAccessToken());
+
+                var response = await request.GetAsync($" https://api.twitch.tv/helix/games?name={name}");
+
+                var gamesResponse = await response.Content.ReadFromJsonAsync<BaseListItems<Game>>();
+
+                if (gamesResponse == null)
+                {
+                    gamesResponse = new BaseListItems<Game> { data = [] };
+                }
+
+                return gamesResponse;
+            }
+            catch (HttpRequestException reqEx)
+            {
+
+                throw;
+            }
         }
     }
 }
