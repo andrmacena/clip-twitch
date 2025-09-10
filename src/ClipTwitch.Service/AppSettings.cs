@@ -6,8 +6,8 @@ namespace ClipTwitch.Service
 {
     public class AppSettings
     {
-        public static Credentials? credentials { get; set; }
-        public static TwitchRoutes? twitchRoutes { get; set; }
+        public Credentials? credentials { get; set; }
+        public TwitchRoutes? twitchRoutes { get; set; }
 
     }
 
