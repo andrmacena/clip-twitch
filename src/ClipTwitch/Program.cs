@@ -18,7 +18,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IOAuthService, TwitchService>();
 builder.Services.AddScoped<ITwitchFunctions, TwitchService>();
 builder.Configuration.AddEnvironmentVariables();
-
+Environment.GetEnvironmentVariables();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
