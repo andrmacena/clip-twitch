@@ -20,6 +20,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      AppSettings__Credentials__ClientId: ${{ secrets.TWITCH_CLIENT_ID }}
+      AppSettings__Credentials__ClientSecret: ${{ secrets.TWITCH_CLIENT_SECRET}}
 
     steps:
       - name: Checkout
