@@ -21,7 +21,7 @@ namespace ClipTwitch.Service
     {
         public string? GetStreams{ get; set; }
         public string? GetUsers { get; set; }
-        public string? AuthorizeScopes { get; set; }
+        public string? GetAuthorizationCode { get; set; }
         public string? GetAccessToken { get; set; }
 
     }
