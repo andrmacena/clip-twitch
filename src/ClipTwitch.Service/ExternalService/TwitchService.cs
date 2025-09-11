@@ -9,16 +9,22 @@ namespace ClipTwitch.Service.ExternalService
     {
         private string ClientId { get; set; }
         private string ClientSecret { get; set; }
-        private string AuthenticationUrl { get; set; }
+        private string UrlAuthorizeScopes { get; set; }
         private string AuthorizationUrl { get; set; }
+        private string UrlUsers { get; set; }
+        private string UrlAccessToken { get; set; }
 
         private readonly AppSettings _configuration;
+
+        const string URL_CALLBACK_APP = "https://localhost:7143/ClipTwitch/callback";
         public TwitchService(IOptions<AppSettings> configuration)
         {
             _configuration = configuration.Value;
             ClientId = _configuration.credentials.ClientId;
             ClientSecret = _configuration.credentials.ClientSecret;
-            AuthenticationUrl = _configuration.twitchRoutes.AuthorizeScopes;
+            UrlAuthorizeScopes = _configuration.twitchRoutes.GetAuthorizationCode;
+            UrlUsers = _configuration.twitchRoutes.GetUsers;
+            UrlAccessToken = _configuration.twitchRoutes.GetAccessToken;
         }
 
         public async Task<string> GetAccessToken()
@@ -33,7 +39,7 @@ namespace ClipTwitch.Service.ExternalService
                             };
             var content = new FormUrlEncodedContent(requestBody);
 
-            var result = await request.PostAsync($"https://id.twitch.tv/oauth2/token", content);
+            var result = await request.PostAsync(UrlAccessToken, content);
 
             var token = result.Content.ReadFromJsonAsync<Token>();
 
@@ -45,7 +51,7 @@ namespace ClipTwitch.Service.ExternalService
         {
             var request = new HttpClient();
 
-            var response = await request.GetAsync($"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={ClientId}&redirect_uri=https://localhost:7143/ClipTwitch/callback&scope=clips%3Aedit");
+            var response = await request.GetAsync($"{UrlAuthorizeScopes}?response_type=code&client_id={ClientId}&redirect_uri={URL_CALLBACK_APP}&scope=clips%3Aedit");
 
             return response.RequestMessage.RequestUri.AbsoluteUri;
         }
@@ -54,7 +60,7 @@ namespace ClipTwitch.Service.ExternalService
         {
             var request = new HttpClient();
 
-            var response = await request.PostAsync($"https://id.twitch.tv/oauth2/token?client_id={ClientId}&client_secret={ClientSecret}&code={authCode}&grant_type=authorization_code&redirect_uri=https://localhost:7143/ClipTwitch/callback", null);
+            var response = await request.PostAsync($"{UrlAccessToken}?client_id={ClientId}&client_secret={ClientSecret}&code={authCode}&grant_type=authorization_code&redirect_uri={URL_CALLBACK_APP}", null);
             Console.WriteLine(response.Content);
 
             return response.Content.ReadAsStringAsync().Result;
@@ -71,7 +77,7 @@ namespace ClipTwitch.Service.ExternalService
                 request.DefaultRequestHeaders.Add("Client-ID", ClientId);
                 request.DefaultRequestHeaders.Add("Authorization", "Bearer " + await GetAccessToken());
 
-                var response = await request.GetAsync($"https://api.twitch.tv/helix/users?login={streamerNickname}");
+                var response = await request.GetAsync($"{UrlUsers}?login={streamerNickname}");
 
                 var streamersResponse = await response.Content.ReadFromJsonAsync<BaseListItems<Streamer>>();
 
