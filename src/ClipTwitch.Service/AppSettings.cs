@@ -19,10 +19,12 @@ namespace ClipTwitch.Service
 
     public class TwitchRoutes
     {
-        public string? GetStreams{ get; set; }
+        public string? GetStreams { get; set; }
         public string? GetUsers { get; set; }
         public string? GetAuthorizationCode { get; set; }
         public string? GetAccessToken { get; set; }
+        public string? GetClips { get; set; }
+        public string? GetGames { get; set; }
 
     }
 }

@@ -6,5 +6,6 @@ namespace ClipTwitch.Service.Interfaces
     {
         public Task<BaseListItems<Streamer>> GetStreamers(string streamerNickname);
         public Task<BaseListItems<Game>> GetGames(string name);
+        public Task<BaseListItems<Clip>> GetClips(string streamerId = null, string gameId = null, string clipId = null);
     }
 }

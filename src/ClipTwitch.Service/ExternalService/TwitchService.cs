@@ -7,24 +7,28 @@ namespace ClipTwitch.Service.ExternalService
 {
     public class TwitchService : IOAuthService, ITwitchFunctions
     {
-        private string ClientId { get; set; }
-        private string ClientSecret { get; set; }
-        private string UrlAuthorizeScopes { get; set; }
-        private string AuthorizationUrl { get; set; }
-        private string UrlUsers { get; set; }
-        private string UrlAccessToken { get; set; }
+        private string? ClientId { get; set; }
+        private string? ClientSecret { get; set; }
+        private string? UrlAuthorizeScopes { get; set; }
+        private string? AuthorizationUrl { get; set; }
+        private string? UrlUsers { get; set; }
+        private string? UrlAccessToken { get; set; }
+        private string? UrlClips { get; set; }
+        private string? UrlGames { get; set; }
 
         private readonly AppSettings _configuration;
 
-        const string URL_CALLBACK_APP = "https://localhost:7143/ClipTwitch/callback";
+        const string URL_CALLBACK_APP = "https://cliptwitch-fxcsgtdte5a6ckca.brazilsouth-01.azurewebsites.net/ClipTwitch/callback";
         public TwitchService(IOptions<AppSettings> configuration)
         {
             _configuration = configuration.Value;
-            ClientId = _configuration.credentials.ClientId;
-            ClientSecret = _configuration.credentials.ClientSecret;
-            UrlAuthorizeScopes = _configuration.twitchRoutes.GetAuthorizationCode;
-            UrlUsers = _configuration.twitchRoutes.GetUsers;
-            UrlAccessToken = _configuration.twitchRoutes.GetAccessToken;
+            ClientId = _configuration.credentials?.ClientId;
+            ClientSecret = _configuration.credentials?.ClientSecret;
+            UrlAuthorizeScopes = _configuration.twitchRoutes?.GetAuthorizationCode;
+            UrlUsers = _configuration.twitchRoutes?.GetUsers;
+            UrlAccessToken = _configuration.twitchRoutes?.GetAccessToken;
+            UrlClips = _configuration.twitchRoutes?.GetClips;
+            UrlGames = _configuration.twitchRoutes?.GetGames;
         }
 
         public async Task<string> GetAccessToken()
@@ -106,7 +110,7 @@ namespace ClipTwitch.Service.ExternalService
                 request.DefaultRequestHeaders.Add("Client-ID", ClientId);
                 request.DefaultRequestHeaders.Add("Authorization", "Bearer " + await GetAccessToken());
 
-                var response = await request.GetAsync($" https://api.twitch.tv/helix/games?name={name}");
+                var response = await request.GetAsync($"{UrlGames}?name={name}");
 
                 var gamesResponse = await response.Content.ReadFromJsonAsync<BaseListItems<Game>>();
 
@@ -116,6 +120,34 @@ namespace ClipTwitch.Service.ExternalService
                 }
 
                 return gamesResponse;
+            }
+            catch (HttpRequestException reqEx)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<BaseListItems<Clip>> GetClips(string streamerId = null, string gameId = null, string clipId = null)
+        {
+            try
+            {
+
+                var request = new HttpClient();
+
+                request.DefaultRequestHeaders.Add("Client-ID", ClientId);
+                request.DefaultRequestHeaders.Add("Authorization", "Bearer " + await GetAccessToken());
+              
+                var response = await request.GetAsync($"{UrlClips}?broadcaster_id={streamerId}");
+
+                var clipsResponse = await response.Content.ReadFromJsonAsync<BaseListItems<Clip>>();
+
+                if (clipsResponse == null)
+                {
+                     clipsResponse = new BaseListItems<Clip> { data = [] };
+                }
+
+                return clipsResponse;
             }
             catch (HttpRequestException reqEx)
             {
