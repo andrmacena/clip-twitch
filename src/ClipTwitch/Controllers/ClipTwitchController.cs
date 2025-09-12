@@ -63,5 +63,13 @@ namespace ClipTwitch.Controllers
             return Ok(resultado);
         }
 
+        [HttpGet]
+        [Route("clips")]
+        public async Task<IActionResult> GetClips([FromQuery] string? streamerId = null, [FromQuery] string? gameId = null, [FromQuery] string? clipId = null)
+        {
+            var resultado = await _twitchFunctions.GetClips(streamerId, gameId, clipId);
+            return Ok(resultado);
+        }
+
     }
 }
